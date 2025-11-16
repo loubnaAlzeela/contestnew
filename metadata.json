@@ -1,0 +1,5 @@
+{
+  "name": "ContestCraft AI",
+  "description": "A web-based contest platform where companies create and publish contests with AI-powered assistance, and participants join to win prizes. Companies subscribe to packages that determine available features.",
+  "requestFramePermissions": []
+}
