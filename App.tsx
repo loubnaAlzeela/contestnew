@@ -1,4 +1,3 @@
-
 import React, { useState, createContext, useContext, useMemo } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import type { User, Company, CompanySubscription, Contest } from './types';
@@ -169,9 +168,9 @@ const App: React.FC = () => {
     <AuthContext.Provider value={authContextValue}>
       <DataContext.Provider value={dataContextValue}>
         <HashRouter>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen text-[var(--color-text-base)]">
             <Header />
-            <main className="flex-grow container mx-auto px-4 py-8">
+            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/contest/:id" element={<ContestPage />} />

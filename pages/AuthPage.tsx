@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../App';
 import { useNavigate } from 'react-router-dom';
@@ -127,96 +126,60 @@ const AuthPage: React.FC = () => {
     }
     return v;
   };
+  
+  const inputClasses = "relative block w-full appearance-none rounded-md border border-[var(--color-border)] bg-[var(--color-bg-body)] px-3 py-2 text-[var(--color-text-base)] placeholder-[var(--color-text-muted)] focus:z-10 focus:border-[var(--color-border-focus)] sm:text-sm";
+
 
   return (
     <div className="flex items-center justify-center min-h-full py-12">
-      <div className="w-full max-w-lg p-8 space-y-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+      <div className="w-full max-w-lg p-8 space-y-8 bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] shadow-xl shadow-[var(--shadow-color)]/10">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            {isLogin ? 'Sign in to your account' : 'Create a new account'}
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-[var(--color-text-heading)]">
+            {isLogin ? 'Welcome Back!' : 'Create Your Account'}
           </h2>
         </div>
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
-          <button onClick={() => { setIsLogin(true); resetForm(); }} className={`w-1/2 py-4 text-center font-medium ${isLogin ? 'border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
+        <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg">
+          <button onClick={() => { setIsLogin(true); resetForm(); }} className={`w-1/2 py-2.5 text-center text-sm font-medium rounded-md transition-colors ${isLogin ? 'bg-[var(--color-bg-card)] text-[var(--color-text-heading)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]'}`}>
             Sign In
           </button>
-          <button onClick={() => { setIsLogin(false); resetForm(); }} className={`w-1/2 py-4 text-center font-medium ${!isLogin ? 'border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
+          <button onClick={() => { setIsLogin(false); resetForm(); }} className={`w-1/2 py-2.5 text-center text-sm font-medium rounded-md transition-colors ${!isLogin ? 'bg-[var(--color-bg-card)] text-[var(--color-text-heading)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]'}`}>
             Sign Up
           </button>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {!isLogin && (
             <div className="pb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">I am a...</label>
-              <div className="flex rounded-md shadow-sm">
-                <button type="button" onClick={() => setRole('participant')} className={`w-full px-4 py-2 text-sm font-medium border ${role === 'participant' ? 'bg-indigo-600 text-white border-indigo-600 z-10' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600'} rounded-l-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none`}>
+              <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-2">I am a...</label>
+              <div className="flex rounded-md">
+                <button type="button" onClick={() => setRole('participant')} className={`w-full px-4 py-2 text-sm font-medium border border-[var(--color-border)] ${role === 'participant' ? 'theme-gradient-bg text-white z-10' : 'bg-transparent text-[var(--color-text-base)]'} rounded-l-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none`}>
                   Participant
                 </button>
-                <button type="button" onClick={() => setRole('company')} className={`w-full -ml-px px-4 py-2 text-sm font-medium border ${role === 'company' ? 'bg-indigo-600 text-white border-indigo-600 z-10' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600'} rounded-r-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none`}>
+                <button type="button" onClick={() => setRole('company')} className={`w-full -ml-px px-4 py-2 text-sm font-medium border border-[var(--color-border)] ${role === 'company' ? 'theme-gradient-bg text-white z-10' : 'bg-transparent text-[var(--color-text-base)]'} rounded-r-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none`}>
                   Company
                 </button>
               </div>
             </div>
           )}
 
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-4">
             {!isLogin && role === 'company' && (
               <div>
                 <label htmlFor="company-name" className="sr-only">Company Name</label>
-                <input
-                  id="company-name"
-                  name="companyName"
-                  type="text"
-                  required
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                  placeholder="Company Name"
-                />
+                <input id="company-name" name="companyName" type="text" required value={companyName} onChange={(e) => setCompanyName(e.target.value)} className={inputClasses} placeholder="Company Name" />
               </div>
             )}
             <div>
               <label htmlFor="email-address" className="sr-only">Email address</label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white ${isLogin || (!isLogin && role !== 'company') ? 'rounded-t-md' : ''}`}
-                placeholder="Email address"
-              />
+              <input id="email-address" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClasses} placeholder="Email address" />
             </div>
             <div>
               <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white ${isLogin ? 'rounded-b-md' : ''}`}
-                placeholder="Password"
-              />
+              <input id="password" name="password" type="password" autoComplete={isLogin ? "current-password" : "new-password"} required value={password} onChange={(e) => setPassword(e.target.value)} className={inputClasses} placeholder="Password" />
             </div>
             {!isLogin && (
                  <div>
                  <label htmlFor="confirm-password" className="sr-only">Confirm Password</label>
-                 <input
-                   id="confirm-password"
-                   name="confirmPassword"
-                   type="password"
-                   autoComplete="new-password"
-                   required
-                   value={confirmPassword}
-                   onChange={(e) => setConfirmPassword(e.target.value)}
-                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                   placeholder="Confirm Password"
-                 />
+                 <input id="confirm-password" name="confirmPassword" type="password" autoComplete="new-password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClasses} placeholder="Confirm Password" />
                </div>
             )}
           </div>
@@ -224,8 +187,8 @@ const AuthPage: React.FC = () => {
           {!isLogin && role === 'company' && (
             <div className="pt-4 space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-center text-gray-900 dark:text-white mb-4">Choose your plan</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h3 className="text-lg font-medium text-center text-[var(--color-text-heading)] mb-4">Choose your plan</h3>
+                <div className="grid grid-cols-1 gap-4">
                   {MOCK_PACKAGES.map(pkg => (
                     <PackageCard 
                       key={pkg.id} 
@@ -240,13 +203,13 @@ const AuthPage: React.FC = () => {
 
               {selectedPackageId && (
                 <div>
-                  <h3 className="text-lg font-medium text-center text-gray-900 dark:text-white mb-4">Payment Information</h3>
+                  <h3 className="text-lg font-medium text-center text-[var(--color-text-heading)] mb-4">Payment Information</h3>
                   <div className="space-y-4">
-                    <input type="text" placeholder="Cardholder Name" required value={cardName} onChange={e => setCardName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    <input type="text" placeholder="Card Number" required value={cardNumber} onChange={e => setCardNumber(formatCardNumber(e.target.value))} maxLength={19} className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    <input type="text" placeholder="Cardholder Name" required value={cardName} onChange={e => setCardName(e.target.value)} className={inputClasses} />
+                    <input type="text" placeholder="Card Number" required value={cardNumber} onChange={e => setCardNumber(formatCardNumber(e.target.value))} maxLength={19} className={inputClasses} />
                     <div className="flex gap-4">
-                      <input type="text" placeholder="MM/YY" required value={cardExpiry} onChange={e => setCardExpiry(formatCardExpiry(e.target.value))} maxLength={5} className="w-1/2 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                      <input type="text" placeholder="CVC" required value={cardCvc} onChange={e => setCardCvc(e.target.value.replace(/[^0-9]/g, ''))} maxLength={4} className="w-1/2 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                      <input type="text" placeholder="MM/YY" required value={cardExpiry} onChange={e => setCardExpiry(formatCardExpiry(e.target.value))} maxLength={5} className={`w-1/2 ${inputClasses}`} />
+                      <input type="text" placeholder="CVC" required value={cardCvc} onChange={e => setCardCvc(e.target.value.replace(/[^0-9]/g, ''))} maxLength={4} className={`w-1/2 ${inputClasses}`} />
                     </div>
                   </div>
                 </div>
@@ -259,7 +222,7 @@ const AuthPage: React.FC = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white theme-gradient-bg theme-gradient-bg-hover disabled:opacity-70"
               disabled={!isLogin && role === 'company' && !selectedPackageId}
             >
               {isLogin ? 'Sign in' : 'Create Account & Subscribe'}

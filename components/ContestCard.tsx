@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Contest } from '../types';
 import { MOCK_COMPANIES } from '../constants';
-import { CalendarIcon, ClockIcon } from './Icons';
+import { ClockIcon } from './Icons';
 
 interface ContestCardProps {
   contest: Contest;
@@ -15,9 +14,9 @@ const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
   const getStatusChip = (status: string) => {
     switch (status) {
       case 'active':
-        return <div className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Active</div>;
+        return <div className="absolute top-4 right-4 bg-teal-100 text-teal-800 text-xs font-semibold px-2.5 py-1 rounded-full dark:bg-teal-900/50 dark:text-teal-300">Active</div>;
       case 'ended':
-        return <div className="absolute top-4 right-4 bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Ended</div>;
+        return <div className="absolute top-4 right-4 bg-slate-100 text-slate-800 text-xs font-semibold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-300">Ended</div>;
       default:
         return null;
     }
@@ -26,22 +25,23 @@ const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
   const endDate = new Date(contest.end_datetime);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
+    <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] shadow-sm hover:shadow-xl hover:shadow-[var(--shadow-color)]/10 transition-shadow duration-300 group">
       <Link to={`/contest/${contest.id}`} className="block">
         <div className="relative">
-          <img className="w-full h-48 object-cover" src={contest.media_url} alt={contest.title} />
+          <img className="w-full h-48 object-cover rounded-t-xl" src={contest.media_url} alt={contest.title} />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-t-xl"></div>
           {getStatusChip(contest.status)}
         </div>
-        <div className="p-6">
-          <div className="flex items-center mb-2">
-            <img className="w-8 h-8 rounded-full mr-3" src={company?.logo_url} alt={company?.name} />
-            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">{company?.name}</span>
+        <div className="p-5">
+          <div className="flex items-center mb-3">
+            <img className="w-8 h-8 rounded-full mr-3 border-2 border-white dark:border-slate-600" src={company?.logo_url} alt={company?.name} />
+            <span className="text-sm font-semibold text-[var(--color-text-muted)]">{company?.name}</span>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 truncate">{contest.title}</h3>
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">{contest.description}</p>
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+          <h3 className="text-lg font-bold text-[var(--color-text-heading)] mb-2 truncate group-hover:theme-gradient-text">{contest.title}</h3>
+          <p className="text-[var(--color-text-base)] text-sm mb-4 line-clamp-2">{contest.description}</p>
+          <div className="flex items-center text-xs text-[var(--color-text-muted)] border-t border-[var(--color-border)] pt-3">
             <ClockIcon />
-            <span className="ml-1">Ends on {endDate.toLocaleDateString()}</span>
+            <span className="ml-1.5">Ends on {endDate.toLocaleDateString()}</span>
           </div>
         </div>
       </Link>

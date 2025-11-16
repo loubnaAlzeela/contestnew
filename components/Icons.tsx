@@ -1,10 +1,15 @@
-
 import React from 'react';
 
 export const LogoIcon: React.FC = () => (
-  <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-  </svg>
+    <svg className="w-8 h-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'var(--color-primary-start)', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: 'var(--color-primary-end)', stopOpacity: 1 }} />
+            </linearGradient>
+        </defs>
+        <path fill="url(#logoGradient)" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+    </svg>
 );
 
 export const CalendarIcon: React.FC = () => (
@@ -20,8 +25,8 @@ export const ClockIcon: React.FC = () => (
 );
 
 export const CheckIcon: React.FC = () => (
-  <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+  <svg className="w-5 h-5 text-[var(--color-primary-start)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
   </svg>
 );
 
@@ -50,6 +55,13 @@ export const TrophyIcon: React.FC<{className?: string}> = ({className}) => (
 export const ArchiveBoxIcon: React.FC<{className?: string}> = ({className}) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
       <path d="M3.5 3A1.5 1.5 0 0 0 2 4.5v2.256a.75.75 0 0 0 1.5 0V4.5a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v2.256a.75.75 0 0 0 1.5 0V4.5A1.5 1.5 0 0 0 16.5 3h-13Z" />
-      <path d="M2 8.605a1.5 1.5 0 0 0-1.5 1.5v6.146A1.5 1.5 0 0 0 2 17.75h16a1.5 1.5 0 0 0 1.5-1.5V10.105a1.5 1.5 0 0 0-1.5-1.5H2Zm8.5 3.145a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2Z" />
+      <path d="M2 8.605a.75.75 0 0 0 0 1.5h16a.75.75 0 0 0 0-1.5H2Z" />
+      <path d="M2 11.855a1.5 1.5 0 0 0-1.5 1.5v2.896A1.5 1.5 0 0 0 2 17.75h16a1.5 1.5 0 0 0 1.5-1.5v-2.895a1.5 1.5 0 0 0-1.5-1.5H2Zm8.5 2.395a.75.75 0 0 0-1.5 0v.5a.75.75 0 0 0 1.5 0v-.5Z" />
+    </svg>
+);
+
+export const PencilIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
+        <path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.5a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
     </svg>
 );

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
@@ -16,22 +15,24 @@ const Header: React.FC = () => {
   const dashboardLink = user ? (user.role.startsWith('company') ? '/company/dashboard' : '/participant/dashboard') : '/';
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-md">
-      <div className="container mx-auto px-4">
+    <header className="bg-[var(--color-bg-card)] border-b border-[var(--color-border)] sticky top-0 z-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <Link to="/" className="flex items-center space-x-2 text-2xl font-bold text-gray-800 dark:text-white">
+          <Link to="/" className="flex items-center space-x-3 text-2xl font-bold">
             <LogoIcon />
-            <span>ContestCraft AI</span>
+            <span className="theme-gradient-text">ContestCraft AI</span>
           </Link>
-          <nav className="flex items-center space-x-4">
+          <nav className="flex items-center space-x-4 md:space-x-6">
             {user ? (
               <>
-                <Link to={dashboardLink} className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">Dashboard</Link>
-                <span className="text-gray-600 dark:text-gray-300">|</span>
-                <span className="text-gray-700 dark:text-gray-200 font-medium">{user.display_name}</span>
+                <Link to={dashboardLink} className="text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-base)]">Dashboard</Link>
+                <div className='hidden sm:flex items-center space-x-4'>
+                    <span className="text-[var(--color-border)]">|</span>
+                    <span className="text-sm font-medium text-[var(--color-text-base)]">{user.display_name}</span>
+                </div>
                 <button
                   onClick={handleLogout}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                  className="theme-gradient-bg theme-gradient-bg-hover text-white px-4 py-2 rounded-md font-semibold text-sm"
                 >
                   Logout
                 </button>
@@ -39,7 +40,7 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/auth"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                className="theme-gradient-bg theme-gradient-bg-hover text-white px-4 py-2 rounded-md font-semibold text-sm"
               >
                 Login / Sign Up
               </Link>

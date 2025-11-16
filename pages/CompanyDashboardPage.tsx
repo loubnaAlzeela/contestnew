@@ -1,13 +1,14 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, useData } from '../App';
 import { MOCK_PACKAGES, MOCK_SUBSCRIPTIONS } from '../constants';
 import type { Contest, Package, Question, QuestionType, Prize } from '../types';
 import PackageCard from '../components/PackageCard';
 import { generateContestIdea } from '../services/geminiService';
-import { SparklesIcon, TrashIcon, ArchiveBoxIcon } from '../components/Icons';
+import { SparklesIcon, TrashIcon, ArchiveBoxIcon, PencilIcon } from '../components/Icons';
 
 type DashboardView = 'contests' | 'form' | 'subscription' | 'analytics' | 'profile';
+const inputClasses = "block w-full rounded-lg border-0 bg-[var(--color-bg-body)] py-2.5 px-3.5 text-[var(--color-text-base)] ring-1 ring-inset ring-[var(--color-border)] placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-inset focus:ring-[var(--color-primary-start)] sm:text-sm sm:leading-6 transition-all duration-150";
+
 
 const CompanyDashboardPage: React.FC = () => {
   const [activeView, setActiveView] = useState<DashboardView>('contests');
@@ -38,11 +39,10 @@ const CompanyDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8">
-      <aside className="w-full md:w-64 flex-shrink-0">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Dashboard Menu</h2>
-          <nav className="space-y-2">
+    <div className="flex flex-col md:flex-row gap-8 items-start">
+      <aside className="w-full md:w-64 flex-shrink-0 md:sticky md:top-28">
+        <div className="bg-[var(--color-bg-card)] p-4 rounded-xl border border-[var(--color-border)] shadow-lg shadow-[var(--shadow-color)]/5">
+          <nav className="space-y-1.5">
             <NavItem text="My Contests" view="contests" activeView={activeView} setActiveView={setActiveView} />
             <NavItem text="Create Contest" view="form" activeView={activeView} setActiveView={(view) => {
               setEditingContest(null);
@@ -54,8 +54,8 @@ const CompanyDashboardPage: React.FC = () => {
           </nav>
         </div>
       </aside>
-      <main className="flex-grow">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow min-h-[500px]">
+      <main className="flex-grow w-full">
+        <div className="bg-[var(--color-bg-card)] p-6 sm:p-8 rounded-xl border border-[var(--color-border)] min-h-[500px] shadow-lg shadow-[var(--shadow-color)]/5">
           {activeView === 'contests' && <ContestsView onEdit={handleStartEdit} notification={notification} />}
           {activeView === 'form' && <ContestFormView contestToEdit={editingContest} onSave={handleFormSave} onCancel={handleFormCancel} />}
           {activeView === 'subscription' && <SubscriptionView />}
@@ -70,8 +70,9 @@ const CompanyDashboardPage: React.FC = () => {
 const NavItem: React.FC<{ text: string, view: DashboardView, activeView: DashboardView, setActiveView: (view: DashboardView) => void }> = ({ text, view, activeView, setActiveView }) => (
   <button
     onClick={() => setActiveView(view)}
-    className={`w-full text-left px-4 py-2 rounded-md transition-colors text-sm font-medium ${activeView === view ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+    className={`relative w-full text-left px-4 py-2.5 rounded-md transition-colors duration-150 text-sm font-medium ${activeView === view ? 'bg-teal-50 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400' : 'text-[var(--color-text-muted)] hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
   >
+     <span className={`absolute left-0 top-2 bottom-2 w-1 rounded-r-full transition-colors ${activeView === view ? 'bg-teal-500' : 'bg-transparent'}`}></span>
     {text}
   </button>
 );
@@ -100,61 +101,70 @@ const ContestsView: React.FC<{onEdit: (contest: Contest) => void; notification: 
     return (
         <div>
             {notification && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
-                    <span className="block sm:inline">{notification}</span>
+                <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 dark:bg-green-900/50 dark:text-green-300" role="alert">
+                    <p className="font-bold">Success</p>
+                    <p>{notification}</p>
                 </div>
             )}
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Contests</h2>
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                <h2 className="text-3xl font-bold text-[var(--color-text-heading)]">My Contests</h2>
                 {userPackage && (
-                     <div className="text-sm">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">Active Contests: </span>
-                        <span className="font-bold text-indigo-600 dark:text-indigo-400">{activeContestsCount} / {userPackage.max_simultaneous_contests}</span>
+                     <div className="text-sm bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg">
+                        <span className="font-semibold text-[var(--color-text-muted)]">Active: </span>
+                        <span className="font-bold text-teal-600 dark:text-teal-400">{activeContestsCount} / {userPackage.max_simultaneous_contests}</span>
                      </div>
                 )}
             </div>
-            <div className="space-y-4">
-                {myContests.map(contest => {
+            <div className="space-y-3">
+                {myContests.length > 0 ? myContests.map(contest => {
                     const isEditable = new Date(contest.start_datetime) > new Date();
                     const isEnded = contest.status === 'ended';
 
                     return (
-                        <div key={contest.id} className="flex justify-between items-center p-4 border rounded-lg dark:border-gray-700">
-                         <div>
-                           <h3 className="font-bold text-indigo-600 dark:text-indigo-400">{contest.title}</h3>
-                           <p className="text-sm text-gray-500 dark:text-gray-400">Status: {contest.status} | Starts: {new Date(contest.start_datetime).toLocaleDateString()} | Ends: {new Date(contest.end_datetime).toLocaleDateString()}</p>
+                        <div key={contest.id} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center p-4 border border-[var(--color-border)] rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:border-teal-400/50 dark:hover:border-teal-500/50 transition-colors">
+                         <div className="md:col-span-3">
+                           <h3 className="font-bold text-lg text-teal-600 dark:text-teal-400">{contest.title}</h3>
+                           <p className="text-sm text-[var(--color-text-muted)] capitalize">{contest.status}</p>
                          </div>
-                         <div className="flex items-center gap-2">
+                         <div className="md:col-span-2 text-sm text-[var(--color-text-base)]">
+                            <p><strong>Starts:</strong> {new Date(contest.start_datetime).toLocaleDateString()}</p>
+                            <p><strong>Ends:</strong> {new Date(contest.end_datetime).toLocaleDateString()}</p>
+                         </div>
+                         <div className="md:col-span-1 flex items-center gap-1 justify-self-start md:justify-self-end">
                              <button 
                                 onClick={() => onEdit(contest)} 
                                 disabled={!isEditable}
-                                className="text-sm bg-gray-200 dark:bg-gray-600 px-3 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
+                                className="p-2 text-[var(--color-text-muted)] hover:text-teal-600 dark:hover:text-teal-400 transition-colors rounded-full hover:bg-teal-100 dark:hover:bg-teal-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                                 title={!isEditable ? "Cannot edit a contest that has already started" : "Edit contest"}
                              >
-                                Edit
+                                <PencilIcon className="w-5 h-5" />
                              </button>
                              {isEditable && (
                                 <button
                                     onClick={() => handleDelete(contest.id, contest.title)}
-                                    className="p-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-100 dark:hover:bg-red-900/50"
+                                    className="p-2 text-[var(--color-text-muted)] hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-100 dark:hover:bg-red-900/50"
                                     title="Delete contest"
                                 >
-                                    <TrashIcon className="w-4 h-4" />
+                                    <TrashIcon className="w-5 h-5" />
                                 </button>
                             )}
                             {isEnded && (
                                 <button
                                     onClick={() => handleArchive(contest)}
-                                    className="p-2 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
+                                    className="p-2 text-[var(--color-text-muted)] hover:text-violet-600 dark:hover:text-violet-400 transition-colors rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/50"
                                     title="Archive contest"
                                 >
-                                    <ArchiveBoxIcon className="w-4 h-4" />
+                                    <ArchiveBoxIcon className="w-5 h-5" />
                                 </button>
                             )}
                          </div>
                        </div>
                     );
-                })}
+                }) : (
+                    <div className="text-center py-10 text-[var(--color-text-muted)] border-2 border-dashed border-[var(--color-border)] rounded-lg">
+                        <p className="font-medium">You haven't created any contests yet.</p>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -294,6 +304,7 @@ const ContestFormView: React.FC<{
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         if (!contest.title || !contest.description) {
             setError("Please provide a title and description.");
             return;
@@ -341,18 +352,18 @@ const ContestFormView: React.FC<{
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{isEditing ? 'Edit Contest' : 'Create New Contest'}</h2>
+            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-6">{isEditing ? 'Edit Contest' : 'Create New Contest'}</h2>
             
             {!isEditing && (
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-lg mb-6 border border-indigo-200 dark:border-indigo-800">
+                <div className="p-5 rounded-lg mb-8 border-2 theme-gradient-border">
                     <div className="flex items-start">
-                        <SparklesIcon className="w-8 h-8 text-indigo-500 mr-3 mt-1 flex-shrink-0" />
+                        <SparklesIcon className="w-8 h-8 text-teal-500 mr-4 mt-1 flex-shrink-0" />
                         <div>
-                            <h3 className="text-lg font-semibold text-indigo-800 dark:text-indigo-200">Stuck for ideas? Let AI help!</h3>
-                            <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-3">Enter a topic and our AI will generate a title, description, and questions to get you started.</p>
-                            <div className="flex items-center gap-2">
-                                 <input type="text" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., 'Sustainable Living'" className="flex-grow p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                                 <button onClick={handleGenerate} disabled={isLoading} className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 flex items-center">
+                            <h3 className="text-lg font-semibold text-[var(--color-text-heading)]">Stuck for ideas? Let AI help!</h3>
+                            <p className="text-sm text-[var(--color-text-muted)] mb-3">Enter a topic and our AI will generate a title, description, and questions to get you started.</p>
+                            <div className="flex flex-col sm:flex-row items-center gap-2">
+                                 <input type="text" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., 'Sustainable Living'" className={`flex-grow w-full ${inputClasses}`} />
+                                 <button onClick={handleGenerate} disabled={isLoading} className="theme-gradient-bg theme-gradient-bg-hover text-white px-5 py-2.5 rounded-md font-semibold disabled:opacity-70 flex items-center w-full sm:w-auto justify-center">
                                     {isLoading ? 'Generating...' : 'Generate'}
                                  </button>
                             </div>
@@ -361,80 +372,101 @@ const ContestFormView: React.FC<{
                 </div>
             )}
             
-            <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form className="space-y-8" onSubmit={handleSubmit}>
+                <div className="space-y-6">
+                    <div className="pb-6 border-b border-[var(--color-border)]">
+                        <h3 className="text-xl font-semibold text-[var(--color-text-heading)] mb-4">Contest Details</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Contest Title</label>
+                                <input type="text" value={contest.title || ''} onChange={e => handleFieldChange('title', e.target.value)} className={inputClasses} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Description</label>
+                                <textarea value={contest.description || ''} onChange={e => handleFieldChange('description', e.target.value)} rows={3} className={inputClasses}></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pb-6 border-b border-[var(--color-border)]">
+                         <h3 className="text-xl font-semibold text-[var(--color-text-heading)] mb-4">Schedule</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Start Time</label>
+                                <input type="datetime-local" value={formatDateTimeLocal(contest.start_datetime)} onChange={e => handleDateChange('start_datetime', e.target.value)} className={inputClasses} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">End Time</label>
+                                <input type="datetime-local" value={formatDateTimeLocal(contest.end_datetime)} onChange={e => handleDateChange('end_datetime', e.target.value)} className={inputClasses} />
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div className="pb-6 border-b border-[var(--color-border)]">
+                        <h3 className="text-xl font-semibold text-[var(--color-text-heading)] mb-4">Prizes</h3>
+                        <div className="space-y-3">
+                            <input type="text" placeholder="1st Place Prize Description" value={contest.prizes?.find(p=>p.position===1)?.description || ''} onChange={e => handlePrizeChange(1, e.target.value)} className={inputClasses} />
+                            <input type="text" placeholder="2nd Place Prize Description" value={contest.prizes?.find(p=>p.position===2)?.description || ''} onChange={e => handlePrizeChange(2, e.target.value)} className={inputClasses} />
+                            <input type="text" placeholder="3rd Place Prize Description" value={contest.prizes?.find(p=>p.position===3)?.description || ''} onChange={e => handlePrizeChange(3, e.target.value)} className={inputClasses} />
+                        </div>
+                    </div>
+                
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
-                        <input type="datetime-local" value={formatDateTimeLocal(contest.start_datetime)} onChange={e => handleDateChange('start_datetime', e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>
-                        <input type="datetime-local" value={formatDateTimeLocal(contest.end_datetime)} onChange={e => handleDateChange('end_datetime', e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Contest Title</label>
-                    <input type="text" value={contest.title || ''} onChange={e => handleFieldChange('title', e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                    <textarea value={contest.description || ''} onChange={e => handleFieldChange('description', e.target.value)} rows={3} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-                </div>
-                <div>
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Prizes</h3>
-                    <div className="space-y-2">
-                        <input type="text" placeholder="1st Place Prize Description" value={contest.prizes?.find(p=>p.position===1)?.description || ''} onChange={e => handlePrizeChange(1, e.target.value)} className="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        <input type="text" placeholder="2nd Place Prize Description" value={contest.prizes?.find(p=>p.position===2)?.description || ''} onChange={e => handlePrizeChange(2, e.target.value)} className="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        <input type="text" placeholder="3rd Place Prize Description" value={contest.prizes?.find(p=>p.position===3)?.description || ''} onChange={e => handlePrizeChange(3, e.target.value)} className="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                    </div>
-                </div>
-                <div>
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Questions</h3>
-                    <div className="space-y-4">
-                        {(contest.questions || []).map((q, qIndex) => (
-                           <div key={q.id || qIndex} className="p-4 border rounded-lg dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                                <div className="flex justify-between items-start mb-3">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 w-full">
-                                        Question {qIndex + 1}
-                                        <input type="text" placeholder="Enter your question prompt" value={q.prompt} onChange={(e) => handleQuestionChange(qIndex, 'prompt', e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                                    </label>
-                                    <button type="button" onClick={() => removeQuestion(qIndex)} className="ml-4 mt-6 text-gray-400 hover:text-red-500 transition-colors" aria-label="Remove question"><TrashIcon className="w-5 h-5" /></button>
+                        <h3 className="text-xl font-semibold text-[var(--color-text-heading)] mb-4">Questions</h3>
+                        <div className="space-y-4">
+                            {(contest.questions || []).map((q, qIndex) => (
+                            <div key={q.id || qIndex} className="p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg-body)]">
+                                <div className="flex justify-between items-start mb-3 gap-4">
+                                    <div className="w-full">
+                                        <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">
+                                            Question {qIndex + 1}
+                                        </label>
+                                        <input type="text" placeholder="Enter your question prompt" value={q.prompt} onChange={(e) => handleQuestionChange(qIndex, 'prompt', e.target.value)} className={inputClasses} />
+                                    </div>
+                                    <button type="button" onClick={() => removeQuestion(qIndex)} className="mt-7 text-gray-400 hover:text-red-500 transition-colors" aria-label="Remove question"><TrashIcon className="w-5 h-5" /></button>
                                 </div>
-                                {userPackage?.allowed_question_types.includes('video_upload') && (
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {userPackage?.allowed_question_types.includes('video_upload') && (
+                                        <div className="mb-3">
+                                            <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Optional Media URL
+                                                <input type="text" placeholder="https://..." value={q.media_url || ''} onChange={(e) => handleQuestionChange(qIndex, 'media_url', e.target.value)} className={inputClasses} />
+                                            </label>
+                                        </div>
+                                    )}
                                     <div className="mb-3">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Optional Media URL (Video or Image)
-                                            <input type="text" placeholder="https://example.com/video.mp4" value={q.media_url || ''} onChange={(e) => handleQuestionChange(qIndex, 'media_url', e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                        <label className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Question Type
+                                            <select value={q.type} onChange={(e) => handleQuestionChange(qIndex, 'type', e.target.value as QuestionType)} className={inputClasses}>
+                                                {userPackage?.allowed_question_types.map(type => (<option key={type} value={type}>{type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>))}
+                                            </select>
                                         </label>
                                     </div>
-                                )}
-                                <div className="mb-3">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Question Type
-                                        <select value={q.type} onChange={(e) => handleQuestionChange(qIndex, 'type', e.target.value as QuestionType)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                            {userPackage?.allowed_question_types.map(type => (<option key={type} value={type}>{type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>))}
-                                        </select>
-                                    </label>
                                 </div>
+
                                 {(q.type === 'single_choice' || q.type === 'multi_choice') && (
-                                    <div className="pl-4 border-l-2 border-indigo-200 dark:border-indigo-800 space-y-2 pt-2">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Options</label>
+                                    <div className="pl-4 border-l-2 border-teal-200 dark:border-teal-800 space-y-2 pt-2 mt-2">
+                                        <label className="block text-sm font-medium text-[var(--color-text-heading)]">Options</label>
                                         {(q.options || []).map((opt, oIndex) => (
                                             <div key={oIndex} className="flex items-center gap-2">
-                                                <input type="text" placeholder={`Option ${oIndex + 1}`} value={opt} onChange={(e) => handleOptionChange(qIndex, oIndex, e.target.value)} className="flex-grow p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" />
+                                                <input type="text" placeholder={`Option ${oIndex + 1}`} value={opt} onChange={(e) => handleOptionChange(qIndex, oIndex, e.target.value)} className={`text-sm ${inputClasses}`} />
                                                 <button type="button" onClick={() => removeOption(qIndex, oIndex)} className="text-gray-400 hover:text-red-500 transition-colors" aria-label="Remove option"><TrashIcon className="w-4 h-4" /></button>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => addOption(qIndex)} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">+ Add Option</button>
+                                        <button type="button" onClick={() => addOption(qIndex)} className="text-sm text-teal-600 dark:text-teal-400 hover:underline font-medium">+ Add Option</button>
                                     </div>
                                 )}
                             </div>
-                        ))}
+                            ))}
+                        </div>
+                        <button type="button" onClick={addQuestion} className="mt-4 w-full border-2 border-dashed border-gray-300 dark:border-gray-600 text-[var(--color-text-muted)] rounded-lg py-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors font-semibold">+ Add Question</button>
                     </div>
-                     <button type="button" onClick={addQuestion} className="mt-4 w-full border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors font-semibold">+ Add Question</button>
                 </div>
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+                {error && <p className="text-red-500 text-sm text-center -mb-4">{error}</p>}
+                
                 <div className="flex items-center gap-4 pt-4">
-                    <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 font-bold">{isEditing ? 'Update Contest' : 'Save Contest'}</button>
-                    <button type="button" onClick={onCancel} className="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 font-medium">Cancel</button>
+                    <button type="submit" className="theme-gradient-bg theme-gradient-bg-hover text-white px-8 py-2.5 rounded-md font-bold text-base">{isEditing ? 'Update Contest' : 'Save Contest'}</button>
+                    <button type="button" onClick={onCancel} className="bg-slate-200 text-slate-800 px-6 py-2.5 rounded-md hover:bg-slate-300 font-medium dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">Cancel</button>
                 </div>
             </form>
         </div>
@@ -443,19 +475,19 @@ const ContestFormView: React.FC<{
 
 const SubscriptionView: React.FC = () => {
     const { user, companies } = useAuth();
-    // Fix: Use `companies` from `useAuth` context instead of MOCK_COMPANIES.
     const company = companies.find(c => c.id === user?.company_id);
     const subscription = MOCK_SUBSCRIPTIONS.find(s => s.company_id === company?.id);
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">My Subscription</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-6">My Subscription</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {MOCK_PACKAGES.map(pkg => (
                     <PackageCard 
                         key={pkg.id} 
                         pkg={pkg}
                         isCurrent={pkg.id === subscription?.package_id}
+                        isSelected={pkg.id === subscription?.package_id}
                         onSelect={() => alert(`Switching to ${pkg.name} plan.`)}
                     />
                 ))}
@@ -467,8 +499,8 @@ const SubscriptionView: React.FC = () => {
 const AnalyticsView: React.FC = () => {
     return (
         <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Analytics</h2>
-            <p className="text-gray-600 dark:text-gray-400">Analytics dashboard is coming soon. You'll see detailed reports on contest performance, participant engagement, and more!</p>
+            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-4">Analytics</h2>
+            <p className="text-[var(--color-text-muted)]">Analytics dashboard is coming soon. You'll see detailed reports on contest performance, participant engagement, and more!</p>
         </div>
     );
 };
@@ -490,15 +522,12 @@ const ProfileView: React.FC = () => {
         e.preventDefault();
         setMessage({ type: '', text: '' });
 
-        // Update company name
         if (companyName !== myCompany.name) {
             updateCompanyProfile(myCompany.id, { name: companyName });
         }
         
-        // Update user profile (email and password)
         const userUpdates: Partial<typeof user> = {};
         if (email !== user.email) {
-            // Check if new email is already taken
             if (users.some(u => u.email === email && u.id !== user.id)) {
                 setMessage({ type: 'error', text: 'This email address is already in use.' });
                 return;
@@ -531,32 +560,35 @@ const ProfileView: React.FC = () => {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Company Profile</h2>
+            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-8">Company Profile</h2>
             {message.text && (
-                 <div className={`p-4 mb-4 text-sm rounded-lg ${message.type === 'success' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`} role="alert">
+                 <div className={`p-4 mb-6 text-sm rounded-lg ${message.type === 'success' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`} role="alert">
                     {message.text}
                  </div>
             )}
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name</label>
-                    <input type="text" id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+            <form onSubmit={handleSubmit} className="space-y-8 max-w-lg">
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="companyName" className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Company Name</label>
+                        <input type="text" id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} className={inputClasses} />
+                    </div>
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Admin Email</label>
+                        <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClasses} />
+                    </div>
                 </div>
-                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Admin Email</label>
-                    <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                </div>
-                <div className="border-t pt-6 border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Change Password</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Leave fields blank to keep your current password.</p>
+
+                <div className="border-t pt-8 border-[var(--color-border)]">
+                    <h3 className="text-xl font-semibold text-[var(--color-text-heading)] mb-2">Change Password</h3>
+                    <p className="text-sm text-[var(--color-text-muted)] mb-4">Leave fields blank to keep your current password.</p>
                     <div className="space-y-4">
-                        <input type="password" placeholder="Current Password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        <input type="password" placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                        <input type="password" placeholder="Confirm New Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        <input type="password" placeholder="Current Password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className={inputClasses} />
+                        <input type="password" placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className={inputClasses} />
+                        <input type="password" placeholder="Confirm New Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputClasses} />
                     </div>
                 </div>
                 <div>
-                    <button type="submit" className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 font-bold">Save Changes</button>
+                    <button type="submit" className="theme-gradient-bg theme-gradient-bg-hover text-white px-8 py-2.5 rounded-md font-bold">Save Changes</button>
                 </div>
             </form>
         </div>
