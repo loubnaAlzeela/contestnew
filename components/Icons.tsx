@@ -31,10 +31,12 @@ export const CheckIcon: React.FC = () => (
 );
 
 export const SparklesIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
-        <path fillRule="evenodd" d="M10.868 2.884c.321-.772.117-1.606-.44-2.162A1 1 0 0 0 9.207.224L8.793 1.25l-.414-.414a1 1 0 0 0-1.414 0l-1.414 1.414a1 1 0 0 0 0 1.414l.414.414-1.027.414a1 1 0 0 0-.224 1.213c.243.562.775.98 1.487 1.134.712.153 1.44-.04 1.962-.562l.414-.414.414.414c.522.522 1.25.715 1.962.562.712-.154 1.244-.572 1.487-1.134.324-.772.117-1.606-.44-2.162L11.207 2.224l.414-.414a1 1 0 0 0 0-1.414l-1.414-1.414a1 1 0 0 0-1.414 0l-.414.414 1.027-.414ZM18 10a1 1 0 0 1-1 1h-1.068a1 1 0 1 0 0 2h1.068a1 1 0 1 1 0 2h-1.068a1 1 0 1 0 0 2h1.068a1 1 0 1 1 0 2h-1.068a1 1 0 0 0 0 2h1.068a1 1 0 1 0 0-2h-1.068a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1ZM3 10a1 1 0 0 1-1 1h-1.068a1 1 0 1 0 0 2h1.068a1 1 0 1 1 0 2H1a1 1 0 1 0 0 2h1.068a1 1 0 1 1 0 2H1a1 1 0 1 0 0-2h1.068a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1Z" clipRule="evenodd" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}>
+      <path fillRule="evenodd" d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 0 1 .75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 0 1 9.75 22.5a.75.75 0 0 1-.75-.75c0-5.056 2.383-9.555 6.084-12.436A6.75 6.75 0 0 1 9.315 7.584Z" clipRule="evenodd" />
+      <path fillRule="evenodd" d="M3 8.25a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 .75-.75ZM6.75 5.25a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0v-12a.75.75 0 0 1 .75-.75ZM10.5 2.25a.75.75 0 0 1 .75.75v18a.75.75 0 0 1-1.5 0v-18a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
     </svg>
 );
+
 
 export const TrashIcon: React.FC<{className?: string}> = ({className}) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
@@ -63,5 +65,25 @@ export const ArchiveBoxIcon: React.FC<{className?: string}> = ({className}) => (
 export const PencilIcon: React.FC<{className?: string}> = ({className}) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
         <path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.5a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
+    </svg>
+);
+
+export const BoltIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}>
+        <path fillRule="evenodd" d="M14.615 1.585a.75.75 0 0 1 .359.852L12.982 9.75h2.77a.75.75 0 0 1 .579.908l-7.5 12.25a.75.75 0 0 1-1.33.088l1.992-6.5h-2.77a.75.75 0 0 1-.579-.908l7.5-12.25a.75.75 0 0 1 .971-.088Z" clipRule="evenodd" />
+    </svg>
+);
+
+export const ClipboardListIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}>
+        <path d="M5.566 4.657A4.505 4.505 0 0 1 6.75 4.5h10.5c.41 0 .806.055 1.183.157A3 3 0 0 0 15.75 3h-7.5a3 3 0 0 0-2.684 1.657z" />
+        <path fillRule="evenodd" d="M18.75 6H5.25a1.5 1.5 0 0 0-1.5 1.5v12a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-12a1.5 1.5 0 0 0-1.5-1.5zM9 12a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 9 12zm0 3a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 9 15z" clipRule="evenodd" />
+    </svg>
+);
+
+export const UsersIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}>
+        <path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM5.25 9.75a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3ZM14.25 11.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" />
+        <path fillRule="evenodd" d="M1.5 15.75a.75.75 0 0 1 .75-.75h19.5a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1-.75-.75ZM2.25 19.5a.75.75 0 0 0 0 1.5h19.5a.75.75 0 0 0 0-1.5H2.25Z" clipRule="evenodd" />
     </svg>
 );

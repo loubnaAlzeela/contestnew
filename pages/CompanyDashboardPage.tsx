@@ -1,174 +1,189 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, useData } from '../App';
 import { MOCK_PACKAGES, MOCK_SUBSCRIPTIONS } from '../constants';
-import type { Contest, Package, Question, QuestionType, Prize } from '../types';
-import PackageCard from '../components/PackageCard';
+import type { Contest, Question, QuestionType, Prize, ContestStatus } from '../types';
 import { generateContestIdea } from '../services/geminiService';
-import { SparklesIcon, TrashIcon, ArchiveBoxIcon, PencilIcon } from '../components/Icons';
+import { SparklesIcon, TrashIcon, BoltIcon, ClipboardListIcon, UsersIcon, PencilIcon } from '../components/Icons';
 
-type DashboardView = 'contests' | 'form' | 'subscription' | 'analytics' | 'profile';
 const inputClasses = "block w-full rounded-lg border-0 bg-[var(--color-bg-body)] py-2.5 px-3.5 text-[var(--color-text-base)] ring-1 ring-inset ring-[var(--color-border)] placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-inset focus:ring-[var(--color-primary-start)] sm:text-sm sm:leading-6 transition-all duration-150";
 
 
 const CompanyDashboardPage: React.FC = () => {
-  const [activeView, setActiveView] = useState<DashboardView>('contests');
+  const [view, setView] = useState<'dashboard' | 'form'>('dashboard');
   const [editingContest, setEditingContest] = useState<Contest | null>(null);
-  const [notification, setNotification] = useState('');
 
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(''), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
+  const handleCreateNew = () => {
+    setEditingContest(null);
+    setView('form');
+  };
 
-  const handleStartEdit = (contest: Contest) => {
+  const handleEditContest = (contest: Contest) => {
     setEditingContest(contest);
-    setActiveView('form');
+    setView('form');
   };
 
-  const handleFormSave = (message: string) => {
-    setNotification(message);
+  const handleBackToDashboard = () => {
     setEditingContest(null);
-    setActiveView('contests');
-  };
-  
-  const handleFormCancel = () => {
-    setEditingContest(null);
-    setActiveView('contests');
+    setView('dashboard');
   };
 
-  return (
-    <div className="flex flex-col md:flex-row gap-8 items-start">
-      <aside className="w-full md:w-64 flex-shrink-0 md:sticky md:top-28">
-        <div className="bg-[var(--color-bg-card)] p-4 rounded-xl border border-[var(--color-border)] shadow-lg shadow-[var(--shadow-color)]/5">
-          <nav className="space-y-1.5">
-            <NavItem text="My Contests" view="contests" activeView={activeView} setActiveView={setActiveView} />
-            <NavItem text="Create Contest" view="form" activeView={activeView} setActiveView={(view) => {
-              setEditingContest(null);
-              setActiveView(view as DashboardView);
-            }} />
-            <NavItem text="Subscription" view="subscription" activeView={activeView} setActiveView={setActiveView} />
-            <NavItem text="Analytics" view="analytics" activeView={activeView} setActiveView={setActiveView} />
-            <NavItem text="Profile" view="profile" activeView={activeView} setActiveView={setActiveView} />
-          </nav>
-        </div>
-      </aside>
-      <main className="flex-grow w-full">
-        <div className="bg-[var(--color-bg-card)] p-6 sm:p-8 rounded-xl border border-[var(--color-border)] min-h-[500px] shadow-lg shadow-[var(--shadow-color)]/5">
-          {activeView === 'contests' && <ContestsView onEdit={handleStartEdit} notification={notification} />}
-          {activeView === 'form' && <ContestFormView contestToEdit={editingContest} onSave={handleFormSave} onCancel={handleFormCancel} />}
-          {activeView === 'subscription' && <SubscriptionView />}
-          {activeView === 'analytics' && <AnalyticsView />}
-          {activeView === 'profile' && <ProfileView />}
-        </div>
-      </main>
-    </div>
-  );
+  const handleSave = () => {
+    setEditingContest(null);
+    setView('dashboard');
+  };
+
+  if (view === 'form') {
+    return <ContestFormView contestToEdit={editingContest} onSave={handleSave} onCancel={handleBackToDashboard} />;
+  }
+
+  return <DashboardView onCreateNew={handleCreateNew} onEditContest={handleEditContest} />;
 };
 
-const NavItem: React.FC<{ text: string, view: DashboardView, activeView: DashboardView, setActiveView: (view: DashboardView) => void }> = ({ text, view, activeView, setActiveView }) => (
-  <button
-    onClick={() => setActiveView(view)}
-    className={`relative w-full text-left px-4 py-2.5 rounded-md transition-colors duration-150 text-sm font-medium ${activeView === view ? 'bg-teal-50 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400' : 'text-[var(--color-text-muted)] hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
-  >
-     <span className={`absolute left-0 top-2 bottom-2 w-1 rounded-r-full transition-colors ${activeView === view ? 'bg-teal-500' : 'bg-transparent'}`}></span>
-    {text}
-  </button>
-);
 
-const ContestsView: React.FC<{onEdit: (contest: Contest) => void; notification: string}> = ({ onEdit, notification }) => {
+const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest: Contest) => void }> = ({ onCreateNew, onEditContest }) => {
     const { user } = useAuth();
-    const { contests, deleteContest, updateContest } = useData();
-    const myContests = contests.filter(c => c.company_id === user?.company_id && c.status !== 'archived');
+    const { contests } = useData();
 
-    const subscription = MOCK_SUBSCRIPTIONS.find(s => s.company_id === user?.company_id);
-    const userPackage = MOCK_PACKAGES.find(p => p.id === subscription?.package_id);
-    const activeContestsCount = myContests.filter(c => c.status === 'active').length;
+    const myContests = useMemo(() => 
+        contests.filter(c => c.company_id === user?.company_id), 
+    [contests, user]);
 
-    const handleArchive = (contest: Contest) => {
-        if (window.confirm(`Are you sure you want to archive "${contest.title}"?`)) {
-            updateContest({ ...contest, status: 'archived' });
-        }
+    const activeContestsCount = useMemo(() => 
+        myContests.filter(c => c.status === 'active').length,
+    [myContests]);
+    
+    const totalContestsCount = myContests.length;
+
+    const subscription = useMemo(() => MOCK_SUBSCRIPTIONS.find(s => s.company_id === user?.company_id), [user]);
+    const userPackage = useMemo(() => MOCK_PACKAGES.find(p => p.id === subscription?.package_id), [subscription]);
+
+    const totalParticipants = 1428; // Mock data from image
+    
+    // A simple way to get a shorter display name
+    const getDisplayName = () => {
+      if (!user) return "User";
+      const name = user.display_name.replace('Admin', '').replace('Corp', '').trim();
+      return name.split(' ')[0] || user.display_name;
     };
-
-    const handleDelete = (contestId: number, contestTitle: string) => {
-        if (window.confirm(`Are you sure you want to permanently delete "${contestTitle}"? This action cannot be undone.`)) {
-            deleteContest(contestId);
-        }
-    };
+    const displayName = getDisplayName();
 
     return (
-        <div>
-            {notification && (
-                <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 dark:bg-green-900/50 dark:text-green-300" role="alert">
-                    <p className="font-bold">Success</p>
-                    <p>{notification}</p>
-                </div>
-            )}
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-                <h2 className="text-3xl font-bold text-[var(--color-text-heading)]">My Contests</h2>
-                {userPackage && (
-                     <div className="text-sm bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg">
-                        <span className="font-semibold text-[var(--color-text-muted)]">Active: </span>
-                        <span className="font-bold text-teal-600 dark:text-teal-400">{activeContestsCount} / {userPackage.max_simultaneous_contests}</span>
-                     </div>
-                )}
+        <div className="max-w-7xl mx-auto">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-[var(--color-text-heading)]">Welcome back, {displayName}!</h1>
+                <p className="text-md text-[var(--color-text-muted)] mt-1">Here's a summary of your contest activities.</p>
             </div>
-            <div className="space-y-3">
-                {myContests.length > 0 ? myContests.map(contest => {
-                    const isEditable = new Date(contest.start_datetime) > new Date();
-                    const isEnded = contest.status === 'ended';
 
-                    return (
-                        <div key={contest.id} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center p-4 border border-[var(--color-border)] rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:border-teal-400/50 dark:hover:border-teal-500/50 transition-colors">
-                         <div className="md:col-span-3">
-                           <h3 className="font-bold text-lg text-teal-600 dark:text-teal-400">{contest.title}</h3>
-                           <p className="text-sm text-[var(--color-text-muted)] capitalize">{contest.status}</p>
-                         </div>
-                         <div className="md:col-span-2 text-sm text-[var(--color-text-base)]">
-                            <p><strong>Starts:</strong> {new Date(contest.start_datetime).toLocaleDateString()}</p>
-                            <p><strong>Ends:</strong> {new Date(contest.end_datetime).toLocaleDateString()}</p>
-                         </div>
-                         <div className="md:col-span-1 flex items-center gap-1 justify-self-start md:justify-self-end">
-                             <button 
-                                onClick={() => onEdit(contest)} 
-                                disabled={!isEditable}
-                                className="p-2 text-[var(--color-text-muted)] hover:text-teal-600 dark:hover:text-teal-400 transition-colors rounded-full hover:bg-teal-100 dark:hover:bg-teal-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                                title={!isEditable ? "Cannot edit a contest that has already started" : "Edit contest"}
-                             >
-                                <PencilIcon className="w-5 h-5" />
-                             </button>
-                             {isEditable && (
-                                <button
-                                    onClick={() => handleDelete(contest.id, contest.title)}
-                                    className="p-2 text-[var(--color-text-muted)] hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-100 dark:hover:bg-red-900/50"
-                                    title="Delete contest"
-                                >
-                                    <TrashIcon className="w-5 h-5" />
-                                </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <StatCard 
+                    icon={<SparklesIcon />} 
+                    title="Subscription Plan" 
+                    value={userPackage?.name || 'N/A'} 
+                />
+                <StatCard 
+                    icon={<BoltIcon />} 
+                    title="Active Contests" 
+                    value={activeContestsCount} 
+                />
+                <StatCard 
+                    icon={<ClipboardListIcon />} 
+                    title="Total Contests" 
+                    value={totalContestsCount} 
+                />
+                <StatCard 
+                    icon={<UsersIcon />} 
+                    title="Total Participants" 
+                    value={totalParticipants.toLocaleString()} 
+                />
+            </div>
+
+            <div className="bg-[var(--color-bg-card)] p-6 sm:p-8 rounded-xl border border-[var(--color-border)] shadow-sm">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                    <h2 className="text-xl font-bold text-[var(--color-text-heading)]">Your Contests</h2>
+                    <button onClick={onCreateNew} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm flex items-center gap-2 transition-colors w-full sm:w-auto justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg>
+                        Create Contest
+                    </button>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-[var(--color-text-muted)]">
+                        <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">Title</th>
+                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">Status</th>
+                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">End Date</th>
+                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">Participants</th>
+                                <th scope="col" className="px-6 py-3"><span className="sr-only">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {myContests.length > 0 ? (
+                                myContests.map(contest => <ContestTableRow key={contest.id} contest={contest} onEdit={onEditContest} />)
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-16 text-[var(--color-text-muted)] border-t border-[var(--color-border)]">
+                                        You haven't created any contests yet.
+                                    </td>
+                                </tr>
                             )}
-                            {isEnded && (
-                                <button
-                                    onClick={() => handleArchive(contest)}
-                                    className="p-2 text-[var(--color-text-muted)] hover:text-violet-600 dark:hover:text-violet-400 transition-colors rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/50"
-                                    title="Archive contest"
-                                >
-                                    <ArchiveBoxIcon className="w-5 h-5" />
-                                </button>
-                            )}
-                         </div>
-                       </div>
-                    );
-                }) : (
-                    <div className="text-center py-10 text-[var(--color-text-muted)] border-2 border-dashed border-[var(--color-border)] rounded-lg">
-                        <p className="font-medium">You haven't created any contests yet.</p>
-                    </div>
-                )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 };
+
+const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string | number }> = ({ icon, title, value }) => {
+    return (
+        <div className="bg-[var(--color-bg-card)] p-5 rounded-xl border border-[var(--color-border)] flex items-center gap-4 shadow-sm">
+            <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full text-blue-600 dark:text-blue-400">
+                {React.cloneElement(icon as React.ReactElement, { className: 'w-6 h-6' })}
+            </div>
+            <div>
+                <p className="text-sm text-[var(--color-text-muted)]">{title}</p>
+                <p className="text-2xl font-bold text-[var(--color-text-heading)]">{value}</p>
+            </div>
+        </div>
+    );
+};
+
+const ContestTableRow: React.FC<{ contest: Contest, onEdit: (contest: Contest) => void }> = ({ contest, onEdit }) => {
+    const isEditable = new Date(contest.start_datetime) > new Date();
+    
+    const getStatusChip = (status: ContestStatus) => {
+        const baseClasses = "px-2.5 py-0.5 text-xs font-semibold rounded-full inline-flex items-center";
+        const colors = {
+            active: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
+            ended: "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300",
+            scheduled: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300",
+            draft: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
+            archived: "bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-300",
+        };
+        return <span className={`${baseClasses} ${colors[status]}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
+    }
+
+    return (
+        <tr className="bg-[var(--color-bg-card)] border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <th scope="row" className="px-6 py-4 font-bold text-[var(--color-text-heading)] whitespace-nowrap">
+                {contest.title}
+            </th>
+            <td className="px-6 py-4">{getStatusChip(contest.status)}</td>
+            <td className="px-6 py-4">{new Date(contest.end_datetime).toLocaleDateString()}</td>
+            <td className="px-6 py-4">N/A</td>
+            <td className="px-6 py-4 text-right">
+                 <button 
+                    onClick={() => onEdit(contest)} 
+                    disabled={!isEditable}
+                    className="p-2 text-[var(--color-text-muted)] hover:text-teal-600 dark:hover:text-teal-400 transition-colors rounded-full hover:bg-teal-100 dark:hover:bg-teal-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                    title={!isEditable ? "Cannot edit a contest that has already started" : "Edit contest"}
+                 >
+                    <PencilIcon className="w-4 h-4" />
+                 </button>
+            </td>
+        </tr>
+    );
+}
 
 const defaultPrizes = [
     { position: 1 as const, description: '' },
@@ -351,7 +366,7 @@ const ContestFormView: React.FC<{
     };
 
     return (
-        <div>
+        <div className="bg-[var(--color-bg-card)] p-6 sm:p-8 rounded-xl border border-[var(--color-border)] min-h-[500px] shadow-lg shadow-[var(--shadow-color)]/5">
             <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-6">{isEditing ? 'Edit Contest' : 'Create New Contest'}</h2>
             
             {!isEditing && (
@@ -473,126 +488,5 @@ const ContestFormView: React.FC<{
     );
 };
 
-const SubscriptionView: React.FC = () => {
-    const { user, companies } = useAuth();
-    const company = companies.find(c => c.id === user?.company_id);
-    const subscription = MOCK_SUBSCRIPTIONS.find(s => s.company_id === company?.id);
-
-    return (
-        <div>
-            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-6">My Subscription</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {MOCK_PACKAGES.map(pkg => (
-                    <PackageCard 
-                        key={pkg.id} 
-                        pkg={pkg}
-                        isCurrent={pkg.id === subscription?.package_id}
-                        isSelected={pkg.id === subscription?.package_id}
-                        onSelect={() => alert(`Switching to ${pkg.name} plan.`)}
-                    />
-                ))}
-            </div>
-        </div>
-    );
-};
-
-const AnalyticsView: React.FC = () => {
-    return (
-        <div>
-            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-4">Analytics</h2>
-            <p className="text-[var(--color-text-muted)]">Analytics dashboard is coming soon. You'll see detailed reports on contest performance, participant engagement, and more!</p>
-        </div>
-    );
-};
-
-const ProfileView: React.FC = () => {
-    const { user, users, companies, updateUserProfile, updateCompanyProfile } = useAuth();
-    const myCompany = companies.find(c => c.id === user?.company_id);
-
-    const [companyName, setCompanyName] = useState(myCompany?.name || '');
-    const [email, setEmail] = useState(user?.email || '');
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [message, setMessage] = useState({ type: '', text: '' });
-
-    if (!user || !myCompany) return <div>Loading profile...</div>;
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setMessage({ type: '', text: '' });
-
-        if (companyName !== myCompany.name) {
-            updateCompanyProfile(myCompany.id, { name: companyName });
-        }
-        
-        const userUpdates: Partial<typeof user> = {};
-        if (email !== user.email) {
-            if (users.some(u => u.email === email && u.id !== user.id)) {
-                setMessage({ type: 'error', text: 'This email address is already in use.' });
-                return;
-            }
-            userUpdates.email = email;
-        }
-
-        if (newPassword) {
-            if (newPassword !== confirmPassword) {
-                setMessage({ type: 'error', text: 'New passwords do not match.' });
-                return;
-            }
-            if (currentPassword !== user.password_hash) {
-                setMessage({ type: 'error', text: 'Incorrect current password.' });
-                return;
-            }
-            userUpdates.password_hash = newPassword;
-        }
-
-        if (Object.keys(userUpdates).length > 0) {
-            updateUserProfile(user.id, userUpdates);
-        }
-
-        setMessage({ type: 'success', text: 'Profile updated successfully!' });
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-    };
-
-
-    return (
-        <div>
-            <h2 className="text-3xl font-bold text-[var(--color-text-heading)] mb-8">Company Profile</h2>
-            {message.text && (
-                 <div className={`p-4 mb-6 text-sm rounded-lg ${message.type === 'success' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`} role="alert">
-                    {message.text}
-                 </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-8 max-w-lg">
-                <div className="space-y-4">
-                    <div>
-                        <label htmlFor="companyName" className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Company Name</label>
-                        <input type="text" id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} className={inputClasses} />
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text-heading)] mb-1">Admin Email</label>
-                        <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClasses} />
-                    </div>
-                </div>
-
-                <div className="border-t pt-8 border-[var(--color-border)]">
-                    <h3 className="text-xl font-semibold text-[var(--color-text-heading)] mb-2">Change Password</h3>
-                    <p className="text-sm text-[var(--color-text-muted)] mb-4">Leave fields blank to keep your current password.</p>
-                    <div className="space-y-4">
-                        <input type="password" placeholder="Current Password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className={inputClasses} />
-                        <input type="password" placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className={inputClasses} />
-                        <input type="password" placeholder="Confirm New Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputClasses} />
-                    </div>
-                </div>
-                <div>
-                    <button type="submit" className="theme-gradient-bg theme-gradient-bg-hover text-white px-8 py-2.5 rounded-md font-bold">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    );
-}
 
 export default CompanyDashboardPage;
