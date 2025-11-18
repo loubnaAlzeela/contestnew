@@ -3,7 +3,8 @@ import { useAuth, useData } from '../App';
 import { MOCK_PACKAGES, MOCK_SUBSCRIPTIONS } from '../constants';
 import type { Contest, Question, QuestionType, Prize, ContestStatus } from '../types';
 import { generateContestIdea } from '../services/geminiService';
-import { SparklesIcon, TrashIcon, BoltIcon, ClipboardListIcon, UsersIcon, PencilIcon } from '../components/Icons';
+// Fix: Import SparklesIcon to resolve reference error.
+import { CheckCircleIcon, TrashIcon, BoltIcon, ClipboardListIcon, UsersIcon, PencilIcon, SparklesIcon } from '../components/Icons';
 
 const inputClasses = "block w-full rounded-lg border-0 bg-[var(--color-bg-body)] py-2.5 px-3.5 text-[var(--color-text-base)] ring-1 ring-inset ring-[var(--color-border)] placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-inset focus:ring-[var(--color-primary-start)] sm:text-sm sm:leading-6 transition-all duration-150";
 
@@ -59,11 +60,10 @@ const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest
 
     const totalParticipants = 1428; // Mock data from image
     
-    // A simple way to get a shorter display name
     const getDisplayName = () => {
       if (!user) return "User";
       const name = user.display_name.replace('Admin', '').replace('Corp', '').trim();
-      return name.split(' ')[0] || user.display_name;
+      return name;
     };
     const displayName = getDisplayName();
 
@@ -76,7 +76,7 @@ const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 <StatCard 
-                    icon={<SparklesIcon />} 
+                    icon={<CheckCircleIcon />} 
                     title="Subscription Plan" 
                     value={userPackage?.name || 'N/A'} 
                 />
@@ -107,12 +107,12 @@ const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-[var(--color-text-muted)]">
-                        <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-800/50">
+                        <thead className="text-xs uppercase bg-slate-400 dark:bg-slate-600 text-white">
                             <tr>
-                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">Title</th>
-                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">Status</th>
-                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">End Date</th>
-                                <th scope="col" className="px-6 py-3 font-medium tracking-wider">Participants</th>
+                                <th scope="col" className="px-6 py-3 font-semibold tracking-wider">Title</th>
+                                <th scope="col" className="px-6 py-3 font-semibold tracking-wider">Status</th>
+                                <th scope="col" className="px-6 py-3 font-semibold tracking-wider">End Date</th>
+                                <th scope="col" className="px-6 py-3 font-semibold tracking-wider">Participants</th>
                                 <th scope="col" className="px-6 py-3"><span className="sr-only">Actions</span></th>
                             </tr>
                         </thead>
@@ -121,7 +121,7 @@ const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest
                                 myContests.map(contest => <ContestTableRow key={contest.id} contest={contest} onEdit={onEditContest} />)
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="text-center py-16 text-[var(--color-text-muted)] border-t border-[var(--color-border)]">
+                                    <td colSpan={5} className="text-center py-12 text-[var(--color-text-muted)]">
                                         You haven't created any contests yet.
                                     </td>
                                 </tr>
@@ -134,11 +134,14 @@ const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest
     );
 };
 
-const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string | number }> = ({ icon, title, value }) => {
+// Fix: The icon prop type was too generic for `React.cloneElement` to safely add a `className`.
+// By specifying that `icon` is a `React.ReactElement` that accepts an optional `className` string prop,
+// we resolve the TypeScript error.
+const StatCard: React.FC<{ icon: React.ReactElement<{ className?: string }>; title: string; value: string | number }> = ({ icon, title, value }) => {
     return (
         <div className="bg-[var(--color-bg-card)] p-5 rounded-xl border border-[var(--color-border)] flex items-center gap-4 shadow-sm">
-            <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full text-blue-600 dark:text-blue-400">
-                {React.cloneElement(icon as React.ReactElement, { className: 'w-6 h-6' })}
+            <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-full text-slate-500 dark:text-slate-400">
+                {React.cloneElement(icon, { className: 'w-6 h-6' })}
             </div>
             <div>
                 <p className="text-sm text-[var(--color-text-muted)]">{title}</p>

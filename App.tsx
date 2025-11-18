@@ -8,6 +8,7 @@ import CompanyDashboardPage from './pages/CompanyDashboardPage';
 import ParticipantDashboardPage from './pages/ParticipantDashboardPage';
 import AuthPage from './pages/AuthPage';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 interface RegisterDetails {
   email: string;
@@ -182,6 +183,7 @@ const App: React.FC = () => {
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>
+            <Footer />
           </div>
         </HashRouter>
       </DataContext.Provider>
