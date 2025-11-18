@@ -69,8 +69,8 @@ const ContestPage: React.FC = () => {
   }
 
   const company = MOCK_COMPANIES.find(c => c.id === contest.company_id);
-  const isEnded = contest.status === 'ended';
-  const canParticipate = user && user.role === 'participant' && !isEnded;
+  const isFinished = contest.status === 'ended' || contest.status === 'archived';
+  const canParticipate = user && user.role === 'participant' && !isFinished;
 
   const WinnerDisplay: React.FC<{ winner: Winner }> = ({ winner }) => {
     const winnerUser = MOCK_USERS.find(u => u.id === winner.user_id);
@@ -133,7 +133,7 @@ const ContestPage: React.FC = () => {
                      </ul>
                  </div>
             )}
-            {isEnded && contest.winners && contest.winners.length > 0 && (
+            {isFinished && contest.winners && contest.winners.length > 0 && (
                 <div className="bg-[var(--color-bg-card)] p-6 rounded-lg border border-[var(--color-border)]">
                      <h2 className="text-xl font-semibold mb-4 text-[var(--color-text-heading)]">Winners</h2>
                      <div className="space-y-3">
@@ -151,7 +151,7 @@ const ContestPage: React.FC = () => {
           <button className="theme-gradient-bg theme-gradient-bg-hover text-white font-bold py-3 px-12 rounded-lg transition-all text-lg shadow-lg shadow-[var(--shadow-color)]/20">
             Submit Entry
           </button>
-        ) : isEnded ? (
+        ) : isFinished ? (
             <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg text-[var(--color-text-muted)]">This contest has ended.</div>
         ) : (
             <div className="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg text-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">

@@ -1,8 +1,6 @@
 {
   "name": "contestcraft-ai",
-  "version": "1.0.0",
-  "homepage": "https://loubnaalzeela.github.io/contestnew/",
-  "scripts": {
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {

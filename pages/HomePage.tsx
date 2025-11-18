@@ -18,7 +18,7 @@ import {
 const HomePage: React.FC = () => {
   const { contests, loading } = useContests();
   const navigate = useNavigate();
-  const activeContests = contests.filter(c => c.status === 'active').slice(0, 3); // Show only 3 featured contests
+  const featuredContests = contests.filter(c => c.status === 'active' || c.status === 'archived').slice(0, 3); // Show featured contests
 
   const handleSelectPackage = () => {
     // For simplicity, this will just navigate to the auth page.
@@ -107,10 +107,10 @@ const HomePage: React.FC = () => {
         </ScrollReveal>
         {loading ? (
             <div className="text-center text-[var(--color-text-muted)]">Loading contests...</div>
-        ) : activeContests.length > 0 ? (
+        ) : featuredContests.length > 0 ? (
             <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {activeContests.map((contest, index) => (
+                    {featuredContests.map((contest, index) => (
                     <ScrollReveal key={contest.id} delay={index * 150}>
                         <ContestCard contest={contest} />
                     </ScrollReveal>

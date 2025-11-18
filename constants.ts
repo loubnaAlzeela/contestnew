@@ -55,7 +55,7 @@ export const MOCK_CONTESTS: Contest[] = [
     description: 'Test your knowledge on a variety of topics and win amazing prizes!',
     media_url: 'https://picsum.photos/seed/contest1/800/400',
     start_datetime: '2024-07-01T00:00:00Z', end_datetime: '2024-08-31T23:59:59Z',
-    status: 'active',
+    status: 'archived',
     questions: MOCK_QUESTIONS.filter(q => q.contest_id === 1),
     prizes: [
       { position: 1, description: 'A brand new tablet' },
@@ -68,7 +68,7 @@ export const MOCK_CONTESTS: Contest[] = [
     description: 'Share your best photos with us. The theme is "Innovation in Daily Life".',
     media_url: 'https://picsum.photos/seed/contest2/800/400',
     start_datetime: '2024-08-01T00:00:00Z', end_datetime: '2024-09-15T23:59:59Z',
-    status: 'active',
+    status: 'archived',
     questions: MOCK_QUESTIONS.filter(q => q.contest_id === 2),
   },
   {

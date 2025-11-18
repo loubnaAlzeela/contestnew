@@ -17,6 +17,8 @@ const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
         return <div className="absolute top-4 right-4 bg-teal-100 text-teal-800 text-xs font-semibold px-2.5 py-1 rounded-full dark:bg-teal-900/50 dark:text-teal-300">Active</div>;
       case 'ended':
         return <div className="absolute top-4 right-4 bg-slate-100 text-slate-800 text-xs font-semibold px-2.5 py-1 rounded-full dark:bg-slate-700 dark:text-slate-300">Ended</div>;
+      case 'archived':
+        return <div className="absolute top-4 right-4 bg-violet-100 text-violet-800 text-xs font-semibold px-2.5 py-1 rounded-full dark:bg-violet-900/50 dark:text-violet-300">Archived</div>;
       default:
         return null;
     }
