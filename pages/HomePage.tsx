@@ -156,7 +156,7 @@ const HomePage: React.FC = () => {
             </p>
             <div className="mt-8">
               <Link to="/auth" className="theme-gradient-bg theme-gradient-bg-hover text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg">
-                  Join Now for Free
+                  Join Now
               </Link>
             </div>
         </section>
