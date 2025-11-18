@@ -55,6 +55,9 @@
       }
       
       /* --- Global Enhancements --- */
+      html {
+        scroll-behavior: smooth;
+      }
       * {
         transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
       }
@@ -99,6 +102,27 @@
       
       /* --- Custom form elements to override tailwind defaults --- */
       .form-radio, .form-checkbox { color: var(--color-primary-start); }
+      
+      /* --- Motion & Animation --- */
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition-delay: var(--reveal-delay, 0s);
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      @keyframes appFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .app-fade-in {
+        animation: appFadeIn 0.5s ease-in-out forwards;
+      }
+
     </style>
   <script type="importmap">
 {

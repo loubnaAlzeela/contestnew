@@ -51,7 +51,7 @@ const ParticipantDashboardPage: React.FC = () => {
             <div className="flex justify-between items-center border-b border-[var(--color-border)] pb-3"><span className="font-semibold text-[var(--color-text-muted)]">Email:</span> <span className="text-[var(--color-text-base)] font-medium">{user.email}</span></div>
             <div className="flex justify-between items-center"><span className="font-semibold text-[var(--color-text-muted)]">Joined:</span> <span className="text-[var(--color-text-base)] font-medium">{new Date(user.created_at).toLocaleDateString()}</span></div>
           </div>
-          <button className="w-full mt-6 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-[var(--color-text-base)] font-semibold py-2.5 rounded-md text-sm transition-colors">
+          <button className="w-full mt-6 bg-slate-800 text-white hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 font-bold uppercase tracking-wider py-3 rounded-lg text-sm transition-colors">
             Edit Profile
           </button>
         </div>

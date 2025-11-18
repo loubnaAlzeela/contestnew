@@ -25,7 +25,7 @@ const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
   const endDate = new Date(contest.end_datetime);
 
   return (
-    <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] shadow-sm hover:shadow-xl hover:shadow-[var(--shadow-color)]/10 transition-shadow duration-300 group">
+    <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] shadow-sm hover:shadow-xl hover:shadow-[var(--shadow-color)]/10 transition-all duration-300 group hover:-translate-y-2">
       <Link to={`/contest/${contest.id}`} className="block">
         <div className="relative">
           <img className="w-full h-48 object-cover rounded-t-xl" src={contest.media_url} alt={contest.title} />

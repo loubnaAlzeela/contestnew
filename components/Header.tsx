@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import { LogoIcon } from './Icons';
@@ -6,6 +6,15 @@ import { LogoIcon } from './Icons';
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+        setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -15,7 +24,7 @@ const Header: React.FC = () => {
   const dashboardLink = user ? (user.role.startsWith('company') ? '/company/dashboard' : '/participant/dashboard') : '/';
 
   return (
-    <header className="bg-[var(--color-bg-card)] border-b border-[var(--color-border)] sticky top-0 z-50">
+    <header className={`bg-[var(--color-bg-card)]/80 backdrop-blur-lg border-b border-[var(--color-border)] sticky top-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-lg shadow-[var(--shadow-color)]/5' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3 text-2xl font-bold">

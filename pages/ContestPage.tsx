@@ -15,7 +15,7 @@ const QuestionComponent: React.FC<{ question: Question, canParticipate: boolean 
           <video
             src={question.media_url}
             controls
-            className="w-full h-full object-cover"
+            className="w-full h-96 object-cover"
           >
             Your browser does not support the video tag.
           </video>
@@ -140,7 +140,7 @@ const ContestPage: React.FC = () => {
         </aside>
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-10 mb-10 text-center">
         {canParticipate ? (
           <button className="theme-gradient-bg theme-gradient-bg-hover text-white font-bold py-3 px-12 rounded-lg transition-all text-lg shadow-lg shadow-[var(--shadow-color)]/20">
             Submit Entry
