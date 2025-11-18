@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth, useData } from '../App';
+import { useAuth, useContests } from '../App';
 import { MOCK_PACKAGES, MOCK_SUBSCRIPTIONS } from '../constants';
 import type { Contest, Question, QuestionType, Prize, ContestStatus } from '../types';
 import { generateContestIdea } from '../services/geminiService';
@@ -12,6 +13,7 @@ const inputClasses = "block w-full rounded-lg border-0 bg-[var(--color-bg-body)]
 const CompanyDashboardPage: React.FC = () => {
   const [view, setView] = useState<'dashboard' | 'form'>('dashboard');
   const [editingContest, setEditingContest] = useState<Contest | null>(null);
+  const { contests, loading, addContest, updateContest } = useContests();
 
   const handleCreateNew = () => {
     setEditingContest(null);
@@ -34,16 +36,32 @@ const CompanyDashboardPage: React.FC = () => {
   };
 
   if (view === 'form') {
-    return <ContestFormView contestToEdit={editingContest} onSave={handleSave} onCancel={handleBackToDashboard} />;
+    return <ContestFormView 
+      contestToEdit={editingContest} 
+      onSave={handleSave} 
+      onCancel={handleBackToDashboard}
+      contests={contests}
+      addContest={addContest}
+      updateContest={updateContest}
+    />;
   }
 
-  return <DashboardView onCreateNew={handleCreateNew} onEditContest={handleEditContest} />;
+  return <DashboardView 
+    onCreateNew={handleCreateNew} 
+    onEditContest={handleEditContest} 
+    contests={contests}
+    loading={loading}
+  />;
 };
 
 
-const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest: Contest) => void }> = ({ onCreateNew, onEditContest }) => {
+const DashboardView: React.FC<{ 
+    onCreateNew: () => void, 
+    onEditContest: (contest: Contest) => void,
+    contests: Contest[],
+    loading: boolean
+}> = ({ onCreateNew, onEditContest, contests, loading }) => {
     const { user } = useAuth();
-    const { contests } = useData();
 
     const myContests = useMemo(() => 
         contests.filter(c => c.company_id === user?.company_id), 
@@ -117,7 +135,11 @@ const DashboardView: React.FC<{ onCreateNew: () => void, onEditContest: (contest
                             </tr>
                         </thead>
                         <tbody>
-                            {myContests.length > 0 ? (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-12 text-[var(--color-text-muted)]">Loading contests...</td>
+                                </tr>
+                            ) : myContests.length > 0 ? (
                                 myContests.map(contest => <ContestTableRow key={contest.id} contest={contest} onEdit={onEditContest} />)
                             ) : (
                                 <tr>
@@ -199,13 +221,15 @@ const ContestFormView: React.FC<{
     contestToEdit: Contest | null;
     onSave: (message: string) => void;
     onCancel: () => void;
-}> = ({ contestToEdit, onSave, onCancel }) => {
+    contests: Contest[];
+    addContest: (contest: Contest) => Promise<void>;
+    updateContest: (contest: Contest) => Promise<void>;
+}> = ({ contestToEdit, onSave, onCancel, contests, addContest, updateContest }) => {
     
     const [contest, setContest] = useState<Partial<Contest>>({});
     const [topic, setTopic] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const { addContest, updateContest, contests } = useData();
     const { user } = useAuth();
     
     const isEditing = useMemo(() => !!contestToEdit, [contestToEdit]);

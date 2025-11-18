@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useData } from '../App';
+import { useContests } from '../App';
 import { MOCK_PACKAGES } from '../constants';
 import ContestCard from '../components/ContestCard';
 import PackageCard from '../components/PackageCard';
@@ -15,7 +16,7 @@ import {
 } from '../components/Icons';
 
 const HomePage: React.FC = () => {
-  const { contests } = useData();
+  const { contests, loading } = useContests();
   const navigate = useNavigate();
   const activeContests = contests.filter(c => c.status === 'active').slice(0, 3); // Show only 3 featured contests
 
@@ -95,34 +96,38 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Featured Contests Section */}
-      {activeContests.length > 0 && (
-        <section id="featured-contests">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-text-heading)]">Featured Contests</h2>
-                <p className="mt-4 max-w-2xl mx-auto text-lg text-[var(--color-text-muted)]">
-                    Check out some of our currently active contests. Join one today!
-                </p>
-            </div>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {activeContests.map((contest, index) => (
-              <ScrollReveal key={contest.id} delay={index * 150}>
-                <ContestCard contest={contest} />
-              </ScrollReveal>
-            ))}
+      <section id="featured-contests">
+        <ScrollReveal>
+          <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-text-heading)]">Featured Contests</h2>
+              <p className="mt-4 max-w-2xl mx-auto text-lg text-[var(--color-text-muted)]">
+                  Check out some of our currently active contests. Join one today!
+              </p>
           </div>
-          {contests.filter(c => c.status === 'active').length > 3 && (
-              <ScrollReveal>
-                <div className="text-center mt-12">
-                    <Link to="/" className="theme-gradient-bg theme-gradient-bg-hover text-white font-semibold px-6 py-3 rounded-lg">
-                        View All Contests
-                    </Link>
+        </ScrollReveal>
+        {loading ? (
+            <div className="text-center text-[var(--color-text-muted)]">Loading contests...</div>
+        ) : activeContests.length > 0 ? (
+            <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                    {activeContests.map((contest, index) => (
+                    <ScrollReveal key={contest.id} delay={index * 150}>
+                        <ContestCard contest={contest} />
+                    </ScrollReveal>
+                    ))}
                 </div>
-              </ScrollReveal>
-          )}
-        </section>
-      )}
+                {contests.filter(c => c.status === 'active').length > 3 && (
+                    <ScrollReveal>
+                        <div className="text-center mt-12">
+                            <Link to="/" className="theme-gradient-bg theme-gradient-bg-hover text-white font-semibold px-6 py-3 rounded-lg">
+                                View All Contests
+                            </Link>
+                        </div>
+                    </ScrollReveal>
+                )}
+            </>
+        ) : null}
+      </section>
 
       {/* Pricing Plans Section */}
       <section>

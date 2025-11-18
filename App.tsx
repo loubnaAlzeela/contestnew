@@ -1,5 +1,5 @@
 
-import React, { useState, createContext, useContext, useMemo } from 'react';
+import React, { useState, createContext, useContext, useMemo, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import type { User, Company, CompanySubscription, Contest } from './types';
 import { MOCK_USERS, MOCK_COMPANIES, MOCK_SUBSCRIPTIONS, MOCK_CONTESTS } from './constants';
@@ -30,15 +30,7 @@ interface AuthContextType {
   updateCompanyProfile: (companyId: number, newProfile: Partial<Company>) => void;
 }
 
-interface DataContextType {
-  contests: Contest[];
-  addContest: (contest: Contest) => void;
-  updateContest: (contest: Contest) => void;
-  deleteContest: (contestId: number) => void;
-}
-
 const AuthContext = createContext<AuthContextType | null>(null);
-const DataContext = createContext<DataContextType | null>(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -48,20 +40,63 @@ export const useAuth = () => {
   return context;
 };
 
-export const useData = () => {
-    const context = useContext(DataContext);
-    if (!context) {
-        throw new Error("useData must be used within a DataProvider");
-    }
-    return context;
-}
+// This hook manages contest data, simulating async fetching from a backend.
+// This is the key to making the app compatible with a headless CMS like WordPress.
+export const useContests = () => {
+  const [contests, setContests] = useState<Contest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Simulate fetching data from a WordPress REST API
+    const fetchContests = async () => {
+      try {
+        setLoading(true);
+        // In a real app, this would be an API call:
+        // const response = await fetch('https://your-wordpress-site.com/wp-json/wp/v2/contests');
+        // const data = await response.json();
+        // For now, we simulate the API call with mock data and a short delay.
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+        setContests(MOCK_CONTESTS);
+        setError(null);
+      } catch (e) {
+        setError("Failed to load contests.");
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContests();
+  }, []);
+
+  const addContest = async (newContest: Contest) => {
+    // In a real app, this would be a POST request to the API.
+    // We simulate it by updating local state.
+    setContests(prevContests => [...prevContests, newContest]);
+  };
+  
+  const updateContest = async (updatedContest: Contest) => {
+     // In a real app, this would be a PUT request to the API.
+    setContests(prevContests => 
+        prevContests.map(c => c.id === updatedContest.id ? updatedContest : c)
+    );
+  };
+  
+  const deleteContest = async (contestId: number) => {
+    // In a real app, this would be a DELETE request to the API.
+    setContests(prevContests => prevContests.filter(c => c.id !== contestId));
+  };
+
+  return { contests, loading, error, addContest, updateContest, deleteContest };
+};
+
 
 const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>(MOCK_USERS);
   const [companies, setCompanies] = useState<Company[]>(MOCK_COMPANIES);
   const [subscriptions, setSubscriptions] = useState<CompanySubscription[]>(MOCK_SUBSCRIPTIONS);
   const [user, setUser] = useState<User | null>(null);
-  const [contests, setContests] = useState<Contest[]>(MOCK_CONTESTS);
 
   const login = (email: string, password_hash: string) => {
     const foundUser = users.find(u => u.email === email && u.password_hash === password_hash);
@@ -147,47 +182,28 @@ const App: React.FC = () => {
     setCompanies(prevCompanies => prevCompanies.map(c => c.id === companyId ? { ...c, ...newProfile } : c));
   };
 
-
-  const addContest = (newContest: Contest) => {
-    setContests(prevContests => [...prevContests, newContest]);
-  };
-  
-  const updateContest = (updatedContest: Contest) => {
-    setContests(prevContests => 
-        prevContests.map(c => c.id === updatedContest.id ? updatedContest : c)
-    );
-  };
-  
-  const deleteContest = (contestId: number) => {
-    setContests(prevContests => prevContests.filter(c => c.id !== contestId));
-  };
-
-
   const authContextValue = useMemo(() => ({ user, users, companies, login, logout, register, updateUserProfile, updateCompanyProfile }), [user, users, companies]);
-  const dataContextValue = useMemo(() => ({ contests, addContest, updateContest, deleteContest }), [contests]);
 
   return (
     <AuthContext.Provider value={authContextValue}>
-      <DataContext.Provider value={dataContextValue}>
-        <HashRouter>
-          <div className="flex flex-col min-h-screen text-[var(--color-text-base)] app-fade-in">
-            <Header />
-            <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 mb-12">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/contest/:id" element={<ContestPage />} />
-                <Route path="/auth" element={!user ? <AuthPage /> : <Navigate to={user.role.startsWith('company') ? "/company/dashboard" : "/participant/dashboard"} />} />
-                
-                <Route path="/company/dashboard" element={user && user.role.startsWith('company') ? <CompanyDashboardPage /> : <Navigate to="/auth" />} />
-                <Route path="/participant/dashboard" element={user && user.role === 'participant' ? <ParticipantDashboardPage /> : <Navigate to="/auth" />} />
+      <HashRouter>
+        <div className="flex flex-col min-h-screen text-[var(--color-text-base)] app-fade-in">
+          <Header />
+          <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 mb-12">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/contest/:id" element={<ContestPage />} />
+              <Route path="/auth" element={!user ? <AuthPage /> : <Navigate to={user.role.startsWith('company') ? "/company/dashboard" : "/participant/dashboard"} />} />
+              
+              <Route path="/company/dashboard" element={user && user.role.startsWith('company') ? <CompanyDashboardPage /> : <Navigate to="/auth" />} />
+              <Route path="/participant/dashboard" element={user && user.role === 'participant' ? <ParticipantDashboardPage /> : <Navigate to="/auth" />} />
 
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </HashRouter>
-      </DataContext.Provider>
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </HashRouter>
     </AuthContext.Provider>
   );
 };

@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_COMPANIES, MOCK_USERS } from '../constants';
 import type { Question, Winner } from '../types';
-import { useAuth, useData } from '../App';
+import { useAuth, useContests } from '../App';
 import { TrophyIcon } from '../components/Icons';
 
 const QuestionComponent: React.FC<{ question: Question, canParticipate: boolean }> = ({ question, canParticipate }) => {
@@ -55,11 +56,16 @@ const QuestionComponent: React.FC<{ question: Question, canParticipate: boolean 
 const ContestPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { contests } = useData();
+  const { contests, loading, error } = useContests();
+  
+  if (loading) {
+    return <div className="text-center text-[var(--color-text-muted)]">Loading contest...</div>;
+  }
+  
   const contest = contests.find(c => c.id === parseInt(id || '0'));
   
-  if (!contest) {
-    return <div className="text-center text-red-500">Contest not found.</div>;
+  if (error || !contest) {
+    return <div className="text-center text-red-500">{error || 'Contest not found.'}</div>;
   }
 
   const company = MOCK_COMPANIES.find(c => c.id === contest.company_id);

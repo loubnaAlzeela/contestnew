@@ -1,11 +1,12 @@
+
 import React from 'react';
-import { useAuth, useData } from '../App';
+import { useAuth, useContests } from '../App';
 import { Link } from 'react-router-dom';
 import { TrophyIcon } from '../components/Icons';
 
 const ParticipantDashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const { contests } = useData();
+  const { contests, loading } = useContests();
 
   // Mocked data for entered contests - using an item from the global context
   const enteredContests = contests.length > 2 ? [contests[2]] : [];
@@ -23,7 +24,9 @@ const ParticipantDashboardPage: React.FC = () => {
         <div className="lg:col-span-2 bg-[var(--color-bg-card)] p-6 rounded-xl border border-[var(--color-border)] shadow-lg shadow-[var(--shadow-color)]/5">
           <h2 className="text-2xl font-bold mb-6 text-[var(--color-text-heading)]">My Contest History</h2>
           <div className="space-y-4">
-            {enteredContests.length > 0 ? (
+            {loading ? (
+                <div className="text-center py-10 text-[var(--color-text-muted)]">Loading contest history...</div>
+            ) : enteredContests.length > 0 ? (
               enteredContests.map(contest => (
                 <div key={contest.id} className="flex flex-col sm:flex-row justify-between sm:items-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                   <div>
