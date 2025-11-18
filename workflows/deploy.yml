@@ -1,1 +1,7 @@
-
+your-repo-name/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+├── src/
+│   └── ... your component and page files
+└── package.json
