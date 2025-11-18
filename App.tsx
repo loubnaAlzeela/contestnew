@@ -1,4 +1,5 @@
 
+
 import React, { useState, createContext, useContext, useMemo, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import type { User, Company, CompanySubscription, Contest } from './types';
@@ -52,9 +53,17 @@ export const useContests = () => {
     const fetchContests = async () => {
       try {
         setLoading(true);
-        // In a real app, this would be an API call:
-        // const response = await fetch('https://your-wordpress-site.com/wp-json/wp/v2/contests');
-        // const data = await response.json();
+        // == PRODUCTION-READY: API INTEGRATION POINT ==
+        // In a real app, this would be an API call to your WordPress backend.
+        // Replace the mock data promise with a real fetch call like this:
+        /*
+        const response = await fetch('https://your-wordpress-site.com/wp-json/wp/v2/contests');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setContests(data);
+        */
         // For now, we simulate the API call with mock data and a short delay.
         await new Promise(resolve => setTimeout(resolve, 500)); 
         setContests(MOCK_CONTESTS);
@@ -71,20 +80,43 @@ export const useContests = () => {
   }, []);
 
   const addContest = async (newContest: Contest) => {
+    // == PRODUCTION-READY: API INTEGRATION POINT ==
     // In a real app, this would be a POST request to the API.
+    /*
+    await fetch('https://your-wordpress-site.com/wp-json/wp/v2/contests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_AUTH_TOKEN' },
+        body: JSON.stringify(newContest)
+    });
+    */
     // We simulate it by updating local state.
     setContests(prevContests => [...prevContests, newContest]);
   };
   
   const updateContest = async (updatedContest: Contest) => {
+     // == PRODUCTION-READY: API INTEGRATION POINT ==
      // In a real app, this would be a PUT request to the API.
+     /*
+     await fetch(`https://your-wordpress-site.com/wp-json/wp/v2/contests/${updatedContest.id}`, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_AUTH_TOKEN' },
+         body: JSON.stringify(updatedContest)
+     });
+     */
     setContests(prevContests => 
         prevContests.map(c => c.id === updatedContest.id ? updatedContest : c)
     );
   };
   
   const deleteContest = async (contestId: number) => {
+    // == PRODUCTION-READY: API INTEGRATION POINT ==
     // In a real app, this would be a DELETE request to the API.
+    /*
+     await fetch(`https://your-wordpress-site.com/wp-json/wp/v2/contests/${contestId}`, {
+         method: 'DELETE',
+         headers: { 'Authorization': 'Bearer YOUR_AUTH_TOKEN' }
+     });
+    */
     setContests(prevContests => prevContests.filter(c => c.id !== contestId));
   };
 
